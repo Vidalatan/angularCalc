@@ -1,3 +1,23 @@
+h2 {
+  text-align: right;
+  min-height: 2rem;
+  width: 200px;
+  border: 2px solid black;
+  overflow-x: auto;
+}
+
+.calc-container {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.calc-border {
+  border: 2px solid black;
+  padding: 20px;
+}
+
 .numPad {
   display: grid;
   height: 200px;

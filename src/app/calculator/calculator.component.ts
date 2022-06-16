@@ -31,16 +31,12 @@ export class CalculatorComponent implements OnInit {
     ['7'],  ['8'],  ['9'], ['×', this.doMultiply],
     ['4'],  ['5'],  ['6'], ['-', this.doSubtraction],
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
-    ['±', this.doSwitchSign],  ['0'],  ['.'], ['=', this.doSolve]
+    ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
   
-  // Check if button char is just a number
-  isNumber(char:string){
-    return char.match(/^[0-9]$/)
-  }
-  
   doPercent(){
-   return 
+   console.log('tested');
+   
   }
 
   doClearEntry(){
@@ -87,13 +83,24 @@ export class CalculatorComponent implements OnInit {
 
   }
 
+  doAddDecimal(){
+
+  }
+
   doSolve(){
 
   }
 
 
-  test(event:object){
-    console.log(event);
-    
+  numPress(event:any){
+    if(event.target.innerText.match(/^\d$/)) {
+      this.display += event.target.innerText
+    } else {
+      for(let btn of this.buttons){
+        if(btn[0] === event.target.innerText){
+          btn[1]()
+        }
+      }
+    }
   }
 }

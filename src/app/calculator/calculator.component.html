@@ -1,9 +1,11 @@
-<div>
-  <h2>{{display}}</h2>
-
-  <div>
-    <div class="numPad">
-      <button (click)='test($event)' *ngFor="let char of buttons" [ngClass]="isNumber(char[0])? 'numPadNum numPadBtn' : 'numPadSym numPadBtn'">{{char[0]}}</button>
+<div class='calc-container'>
+  <div class='calc-border'>
+    <h2>{{display}}</h2>
+  
+    <div>
+      <div class="numPad">
+        <button (click)='numPress($event)' *ngFor="let char of buttons" [ngClass]="char[1]? 'numPadNum numPadBtn' : 'numPadSym numPadBtn'">{{char[0]}}</button>
+      </div>
     </div>
   </div>
 </div>
