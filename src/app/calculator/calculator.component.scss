@@ -1,0 +1,14 @@
+.numPad {
+  display: grid;
+  height: 200px;
+  width: 200px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.numPadNum {
+  background-color: grey;
+}
+
+.numPadSym {
+  background-color: aqua;
+}

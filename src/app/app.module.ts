@@ -3,19 +3,18 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HistoryComponent } from './history/history.component';
+import { ContextService } from './context.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ...routingComponents,
-    HistoryComponent,
+    ...routingComponents
   ],
   imports: [
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [ContextService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
