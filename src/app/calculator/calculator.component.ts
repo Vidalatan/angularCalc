@@ -18,7 +18,7 @@ export class CalculatorComponent implements OnInit {
   }
 
   // Used to show the current display
-  public display:string = '';
+  public display:string = '0';
   
   
   // Each button symbol or number
@@ -93,7 +93,9 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
+    
     if(event.target.innerText.match(/^\d$/)) {
+      (this.display==='0' && (this.display= ''))
       this.display += event.target.innerText
     } else {
       for(let btn of this.buttons){
