@@ -19,6 +19,8 @@ export class CalculatorComponent implements OnInit {
 
   // Used to show the current display
   public display:string = '0';
+  // Used to store number and operation temporarily before calling doSolve
+  private _computation = {held: 0, operation: ''}
   
   
   // Each button symbol or number
@@ -34,57 +36,119 @@ export class CalculatorComponent implements OnInit {
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
   
-  doPercent(){
-   console.log('tested');
-   
+  doPercent(solve:boolean=false){
+   switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
   doClearEntry(){
-
+    
   }
 
   doClear(){
-
+    
   }
 
   doBackSpace(){
-
+    
   }
 
-  doInverse(){
-
+  doInverse(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doSquare(){
-
+  doSquare(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doSqrt(){
-
+  doSqrt(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doDivision(){
-
+  doDivision(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doMultiply(){
-
+  doMultiply(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doSubtraction(){
-
+  doSubtraction(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doAddition(){
-
+  doAddition(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
-  doSwitchSign(){
-
+  doSwitchSign(solve:boolean=false){
+    switch (solve) {
+    case false:
+      
+      break;
+    case true:
+      
+      break;
+   }
   }
 
   doAddDecimal(){
-
+    
   }
 
   doSolve(){
