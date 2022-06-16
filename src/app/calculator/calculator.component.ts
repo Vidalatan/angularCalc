@@ -7,7 +7,6 @@ import { ContextService } from '../context.service';
   styleUrls: ['./calculator.component.scss']
 })
 export class CalculatorComponent implements OnInit {
-
   public context: ContextService;
   
   constructor(private _contextService: ContextService) {
@@ -21,7 +20,11 @@ export class CalculatorComponent implements OnInit {
   public display:string = '0';
   // Used to store number and operation temporarily before calling doSolve
   private _computation = {held: 0, operation: ''}
-  
+
+  holdDisplay(){
+    this._computation.held = Number(this.display)
+    this.display='0'
+  }
   
   // Each button symbol or number
   public buttons: any[][] = 
@@ -37,22 +40,25 @@ export class CalculatorComponent implements OnInit {
   ]
   
   doPercent(solve:boolean=false){
-   switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+    switch (solve) {
+      case false:
+        this.holdDisplay()
+        
+        
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doClearEntry(){
-    
+    this.display = '0';
   }
 
   doClear(){
-    
+    this.display = '0';
+    this._computation = {held: 0, operation: ''}
   }
 
   doBackSpace(){
@@ -61,90 +67,83 @@ export class CalculatorComponent implements OnInit {
 
   doInverse(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doSquare(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doSqrt(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doDivision(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doMultiply(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doSubtraction(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
   doAddition(solve:boolean=false){
     switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
+      case false:
+        this.holdDisplay()
+        break;
+      case true:
+        
+        break;
    }
   }
 
-  doSwitchSign(solve:boolean=false){
-    switch (solve) {
-    case false:
-      
-      break;
-    case true:
-      
-      break;
-   }
+  doSwitchSign(){
+    
   }
 
   doAddDecimal(){
@@ -164,7 +163,7 @@ export class CalculatorComponent implements OnInit {
     } else {
       for(let btn of this.buttons){
         if(btn[0] === event.target.innerText){
-          btn[1]()
+          btn[1].call(this)
         }
       }
     }
