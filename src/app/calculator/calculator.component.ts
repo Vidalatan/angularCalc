@@ -19,11 +19,12 @@ export class CalculatorComponent implements OnInit {
   // Used to show the current display
   public display:string = '0';
   // Used to store number and operation temporarily before calling doSolve
-  private _computation = {held: 0, operation: ''}
+  private _computation = {held: 0, operation: '', last: 0}
 
-  holdDisplay(){
-    this._computation.held = Number(this.display)
-    this.display='0'
+  holdDisplay(op:string=''){
+    this._computation.held = Number(this.display);
+    this.display='0';
+    (op && (this._computation.operation=op))
   }
   
   // Each button symbol or number
@@ -38,16 +39,24 @@ export class CalculatorComponent implements OnInit {
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
+
+  private _resetFlag = false
+  private _awaitNew = false
   
-  doPercent(solve:boolean=false){
-    switch (solve) {
+  doPercent(){
+    switch (Boolean(this._computation.operation)) {
       case false:
-        this.holdDisplay()
-        
-        
+        this.display = '0'
         break;
-      case true:
-        
+        case true:
+          if(this._computation.operation === '+' || this._computation.operation === '-') {
+            this._computation.last = this._computation.held*(Number(this.display)/100);
+            this.display = String(this._computation.last);
+          } else if (this._computation.operation === '×' || this._computation.operation === '÷') {
+            this.display = String(Number(this.display)/100)
+          } else {
+            this.display = 'err'
+          }
         break;
    }
   }
@@ -58,15 +67,15 @@ export class CalculatorComponent implements OnInit {
 
   doClear(){
     this.display = '0';
-    this._computation = {held: 0, operation: ''}
+    this._computation = {held: 0, operation: '', last: 0}
   }
 
   doBackSpace(){
-    
+    this.display = this.display.substring(0, this.display.length-1)
   }
 
-  doInverse(solve:boolean=false){
-    switch (solve) {
+  doInverse(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -76,8 +85,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doSquare(solve:boolean=false){
-    switch (solve) {
+  doSquare(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -87,8 +96,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doSqrt(solve:boolean=false){
-    switch (solve) {
+  doSqrt(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -98,8 +107,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doDivision(solve:boolean=false){
-    switch (solve) {
+  doDivision(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -109,8 +118,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doMultiply(solve:boolean=false){
-    switch (solve) {
+  doMultiply(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -120,8 +129,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doSubtraction(solve:boolean=false){
-    switch (solve) {
+  doSubtraction(){
+    switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay()
         break;
@@ -131,13 +140,19 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doAddition(solve:boolean=false){
-    switch (solve) {
+  doAddition(ovr:number){
+    switch (Boolean(this._computation.operation)) {
       case false:
-        this.holdDisplay()
+        this.holdDisplay('+')
         break;
       case true:
-        
+        if(this._awaitNew){
+          this._resetFlag = true;
+          this._computation.last = Number(this.display);
+          this._computation.held = this._computation.last+this._computation.held;
+          this.display = String(this._computation.held)
+          this._awaitNew = false;
+        }
         break;
    }
   }
@@ -158,7 +173,11 @@ export class CalculatorComponent implements OnInit {
   numPress(event:any){
     
     if(event.target.innerText.match(/^\d$/)) {
-      (this.display==='0' && (this.display= ''))
+      if(this.display==='0' || this._resetFlag) {
+        this.display= '';
+        this._resetFlag=false;
+        this._awaitNew = true;
+      }
       this.display += event.target.innerText
     } else {
       for(let btn of this.buttons){
