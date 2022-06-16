@@ -3,7 +3,7 @@
 
   <div>
     <div class="numPad">
-      <button *ngFor="let char of buttons" [ngClass]="isNumber(char)? 'numPadNum' : 'numPadSym'">{{char}}</button>
+      <button (click)='test($event)' *ngFor="let char of buttons" [ngClass]="isNumber(char[0])? 'numPadNum numPadBtn' : 'numPadSym numPadBtn'">{{char[0]}}</button>
     </div>
   </div>
 </div>

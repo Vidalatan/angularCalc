@@ -10,5 +10,10 @@
 }
 
 .numPadSym {
-  background-color: aqua;
+  background-color: darkgray;
+}
+
+
+.numPadBtn:active {
+  background-color: adjust-hue($color: #3b3b3b, $degrees: 0);
 }
