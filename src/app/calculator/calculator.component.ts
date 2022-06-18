@@ -132,10 +132,16 @@ export class CalculatorComponent implements OnInit {
   doSubtraction(){
     switch (Boolean(this._computation.operation)) {
       case false:
-        this.holdDisplay()
+        this.holdDisplay('-')
         break;
       case true:
-        
+        if(this._awaitNew){
+          this._resetFlag = true;
+          this._computation.last = Number(this.display);
+          this._computation.held = this._computation.held-this._computation.last;
+          this.display = String(this._computation.held)
+          this._awaitNew = false;
+        }
         break;
    }
   }
@@ -149,7 +155,7 @@ export class CalculatorComponent implements OnInit {
         if(this._awaitNew){
           this._resetFlag = true;
           this._computation.last = Number(this.display);
-          this._computation.held = this._computation.last+this._computation.held;
+          this._computation.held = this._computation.held+this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
         }
@@ -171,6 +177,8 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
+    console.log(this._computation);
+    
     
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
