@@ -29,10 +29,8 @@ export class CalculatorComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   keyPadDown(event: KeyboardEvent){
-    console.log(event.key);
-    
-    for(let char of this.buttons){
-      (char[0] === event.key && document.getElementById(`keyPad-${char[0]}`)?.click())
+    for(let [char] of this.buttons){
+      (char === event.key && document.getElementById(`keyPad-${char[0]}`)?.click())
     };
     (event.key === '*' && document.getElementById(`keyPad-×`)?.click());
     (event.key === '/' && document.getElementById(`keyPad-÷`)?.click());
@@ -99,7 +97,7 @@ export class CalculatorComponent implements OnInit {
     this.display = String(Math.sqrt(Number(this.display)))
   }
 
-  doDivision(){
+  doDivision(ovr:boolean = false){
     switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay('÷')
@@ -107,7 +105,7 @@ export class CalculatorComponent implements OnInit {
       case true:
         if(this._awaitNew){
           this._resetFlag = true;
-          this._computation.last = Number(this.display);
+          this._computation.last = ovr ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held/this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
@@ -116,7 +114,7 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doMultiply(){
+  doMultiply(ovr:boolean = false){
     switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay('×')
@@ -124,7 +122,7 @@ export class CalculatorComponent implements OnInit {
       case true:
         if(this._awaitNew){
           this._resetFlag = true;
-          this._computation.last = Number(this.display);
+          this._computation.last = ovr ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held*this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
@@ -133,7 +131,7 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doSubtraction(){
+  doSubtraction(ovr:boolean = false){
     switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay('-')
@@ -141,7 +139,7 @@ export class CalculatorComponent implements OnInit {
       case true:
         if(this._awaitNew){
           this._resetFlag = true;
-          this._computation.last = Number(this.display);
+          this._computation.last = ovr ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held-this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
@@ -150,7 +148,7 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doAddition(ovr:number){
+  doAddition(ovr:boolean = false){
     switch (Boolean(this._computation.operation)) {
       case false:
         this.holdDisplay('+')
@@ -158,7 +156,7 @@ export class CalculatorComponent implements OnInit {
       case true:
         if(this._awaitNew){
           this._resetFlag = true;
-          this._computation.last = Number(this.display);
+          this._computation.last = ovr ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held+this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
@@ -168,15 +166,17 @@ export class CalculatorComponent implements OnInit {
   }
 
   doSwitchSign(){
-    
+    this.display = String(-Number(this.display))
   }
 
   doAddDecimal(){
-    
+    this.display += '.'
   }
 
   doSolve(){
-
+    for(let [_, op] of this.buttons){
+      
+    }
   }
 
 
