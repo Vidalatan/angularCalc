@@ -34,8 +34,10 @@ export class CalculatorComponent implements OnInit {
     for(let char of this.buttons){
       (char[0] === event.key && document.getElementById(`keyPad-${char[0]}`)?.click())
     };
+    (event.key === '*' && document.getElementById(`keyPad-×`)?.click());
     (event.key === '/' && document.getElementById(`keyPad-÷`)?.click());
-    ((event.key === 'Backspace' || event.key === 'Delete') && document.getElementById(`keyPad-«`)?.click());
+    (event.key === 'Backspace' && document.getElementById(`keyPad-«`)?.click());
+    (event.key === 'Delete' && document.getElementById(`keyPad-CE`)?.click());
   }
   
   // Each button symbol or number
@@ -44,7 +46,7 @@ export class CalculatorComponent implements OnInit {
     ['%', this.doPercent], ['CE', this.doClearEntry],
     [ 'C', this.doClear], ['«', this.doBackSpace],
     ['1/x', this.doInverse], ['x^2', this.doSquare],   
-    ['√a', this.doSqrt], ['÷', this.doDivision],
+    ['√x', this.doSqrt], ['÷', this.doDivision],
     ['7'],  ['8'],  ['9'], ['×', this.doMultiply],
     ['4'],  ['5'],  ['6'], ['-', this.doSubtraction],
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
@@ -86,45 +88,30 @@ export class CalculatorComponent implements OnInit {
   }
 
   doInverse(){
-    switch (Boolean(this._computation.operation)) {
-      case false:
-        this.holdDisplay()
-        break;
-      case true:
-        
-        break;
-   }
+    this.display = String(1/Number(this.display))
   }
 
   doSquare(){
-    switch (Boolean(this._computation.operation)) {
-      case false:
-        this.holdDisplay()
-        break;
-      case true:
-        
-        break;
-   }
+    this.display = String(Number(this.display)**2)
   }
 
   doSqrt(){
-    switch (Boolean(this._computation.operation)) {
-      case false:
-        this.holdDisplay()
-        break;
-      case true:
-        
-        break;
-   }
+    this.display = String(Math.sqrt(Number(this.display)))
   }
 
   doDivision(){
     switch (Boolean(this._computation.operation)) {
       case false:
-        this.holdDisplay()
+        this.holdDisplay('÷')
         break;
       case true:
-        
+        if(this._awaitNew){
+          this._resetFlag = true;
+          this._computation.last = Number(this.display);
+          this._computation.held = this._computation.held/this._computation.last;
+          this.display = String(this._computation.held)
+          this._awaitNew = false;
+        }
         break;
    }
   }
@@ -132,10 +119,16 @@ export class CalculatorComponent implements OnInit {
   doMultiply(){
     switch (Boolean(this._computation.operation)) {
       case false:
-        this.holdDisplay()
+        this.holdDisplay('×')
         break;
       case true:
-        
+        if(this._awaitNew){
+          this._resetFlag = true;
+          this._computation.last = Number(this.display);
+          this._computation.held = this._computation.held*this._computation.last;
+          this.display = String(this._computation.held)
+          this._awaitNew = false;
+        }
         break;
    }
   }
