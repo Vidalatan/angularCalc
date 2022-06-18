@@ -27,14 +27,15 @@ export class CalculatorComponent implements OnInit {
     (op && (this._computation.operation=op))
   }
 
-  @HostListener('document:keypress', ['$event'])
+  @HostListener('window:keydown', ['$event'])
   keyPadDown(event: KeyboardEvent){
+    console.log(event.key);
     
     for(let char of this.buttons){
       (char[0] === event.key && document.getElementById(`keyPad-${char[0]}`)?.click())
-    }
-
-    (event.key === '/' && document.getElementById(`keyPad-÷`)?.click())
+    };
+    (event.key === '/' && document.getElementById(`keyPad-÷`)?.click());
+    ((event.key === 'Backspace' || event.key === 'Delete') && document.getElementById(`keyPad-«`)?.click());
   }
   
   // Each button symbol or number
