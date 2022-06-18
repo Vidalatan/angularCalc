@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ContextService } from '../context.service';
 
 @Component({
@@ -25,6 +25,16 @@ export class CalculatorComponent implements OnInit {
     this._computation.held = Number(this.display);
     this.display='0';
     (op && (this._computation.operation=op))
+  }
+
+  @HostListener('document:keypress', ['$event'])
+  keyPadDown(event: KeyboardEvent){
+    
+    for(let char of this.buttons){
+      (char[0] === event.key && document.getElementById(`keyPad-${char[0]}`)?.click())
+    }
+
+    (event.key === '/' && document.getElementById(`keyPad-÷`)?.click())
   }
   
   // Each button symbol or number
@@ -177,7 +187,7 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
-    console.log(this._computation);
+    // console.log(this._computation);
     
     
     if(event.target.innerText.match(/^\d$/)) {

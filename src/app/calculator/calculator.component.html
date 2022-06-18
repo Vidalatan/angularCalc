@@ -4,7 +4,15 @@
   
     <div>
       <div class="numPad">
-        <button (click)='numPress($event)' *ngFor="let char of buttons" [ngClass]="char[1]? 'numPadNum numPadBtn' : 'numPadSym numPadBtn'">{{char[0]}}</button>
+        <button 
+        (click)='numPress($event)' 
+        *ngFor="let char of buttons" 
+        [ngClass]="char[1]? 'numPadNum numPadBtn' : 'numPadSym numPadBtn'"
+        id='keyPad-{{char[0]}}'>
+
+          {{char[0]}}
+
+        </button>
       </div>
     </div>
   </div>
