@@ -51,8 +51,9 @@ export class CalculatorComponent implements OnInit {
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
 
-  private _resetFlag = false
-  private _awaitNew = false
+  private _resetFlag = false;
+  private _awaitNew = false;
+  private _reSolve = false;
   
   doPercent(){
     switch (Boolean(this._computation.operation)) {
@@ -97,69 +98,93 @@ export class CalculatorComponent implements OnInit {
     this.display = String(Math.sqrt(Number(this.display)))
   }
 
-  doDivision(ovr:boolean = false){
-    switch (Boolean(this._computation.operation)) {
-      case false:
+  doDivision(){
+    switch (this._computation.operation) {
+      case '':
         this.holdDisplay('÷')
         break;
-      case true:
-        if(this._awaitNew){
+      case '÷':
+        if(this._awaitNew || this._reSolve){
           this._resetFlag = true;
-          this._computation.last = ovr ? this._computation.last : Number(this.display);
+          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held/this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
         }
         break;
+      default:
+        for(let [_, op] of this.buttons){
+          (op === this._computation.operation && op.call(this))
+          this._computation.operation = '÷';
+        }
+        break;
    }
   }
 
-  doMultiply(ovr:boolean = false){
-    switch (Boolean(this._computation.operation)) {
-      case false:
+  doMultiply(){
+    switch (this._computation.operation) {
+      case '':
         this.holdDisplay('×')
         break;
-      case true:
-        if(this._awaitNew){
+      case '×':
+        if(this._awaitNew || this._reSolve){
           this._resetFlag = true;
-          this._computation.last = ovr ? this._computation.last : Number(this.display);
+          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held*this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
         }
         break;
-   }
-  }
-
-  doSubtraction(ovr:boolean = false){
-    switch (Boolean(this._computation.operation)) {
-      case false:
-        this.holdDisplay('-')
-        break;
-      case true:
-        if(this._awaitNew){
-          this._resetFlag = true;
-          this._computation.last = ovr ? this._computation.last : Number(this.display);
-          this._computation.held = this._computation.held-this._computation.last;
-          this.display = String(this._computation.held)
-          this._awaitNew = false;
+      default:
+        for(let [_, op] of this.buttons){
+          (op === this._computation.operation && op.call(this))
+          this._computation.operation = '×';
         }
         break;
    }
   }
 
-  doAddition(ovr:boolean = false){
-    switch (Boolean(this._computation.operation)) {
-      case false:
+  doSubtraction(){
+    switch (this._computation.operation) {
+      case '':
+        this.holdDisplay('-')
+        break;
+      case '-':
+        if(this._awaitNew || this._reSolve){
+          this._resetFlag = true;
+          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
+          this._computation.held = this._computation.held-this._computation.last;
+          this.display = String(this._computation.held)
+          this._awaitNew = false;
+        }
+        break;
+      default:
+        for(let [_, op] of this.buttons){
+          (op === this._computation.operation && op.call(this))
+          this._computation.operation = '-';
+        }
+        break;
+   }
+  }
+
+  doAddition(){
+    switch (this._computation.operation) {
+      case '':
         this.holdDisplay('+')
         break;
-      case true:
-        if(this._awaitNew){
+      case '+':
+        if(this._awaitNew || this._reSolve){
           this._resetFlag = true;
-          this._computation.last = ovr ? this._computation.last : Number(this.display);
+          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
           this._computation.held = this._computation.held+this._computation.last;
           this.display = String(this._computation.held)
           this._awaitNew = false;
+        }
+        break;
+      default:
+        for(let [_, op] of this.buttons){
+          (op === this._computation.operation && op.call(this))
+          this._computation.operation = '+';
         }
         break;
    }
@@ -174,15 +199,24 @@ export class CalculatorComponent implements OnInit {
   }
 
   doSolve(){
-    for(let [_, op] of this.buttons){
+    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
+    this._computation.last ||= Number(this.display)
+    for(let [char, op] of this.buttons){
+      if(this._reSolve) {
+        (char === this._computation.operation && op.call(this, true));
+      } else {
+        (char === this._computation.operation && op.call(this));
+        this._reSolve=true;
+      }
       
     }
+    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   }
 
 
   numPress(event:any){
-    // console.log(this._computation);
-    
+    if(event.target.innerText !== '=') this._reSolve = false
+    console.log(this._reSolve);
     
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
@@ -192,9 +226,9 @@ export class CalculatorComponent implements OnInit {
       }
       this.display += event.target.innerText
     } else {
-      for(let btn of this.buttons){
-        if(btn[0] === event.target.innerText){
-          btn[1].call(this)
+      for(let [char, op] of this.buttons){
+        if(char === event.target.innerText){
+          op.call(this)
         }
       }
     }
