@@ -19,12 +19,35 @@ export class CalculatorComponent implements OnInit {
   // Used to show the current display
   public display:string = '0';
   // Used to store number and operation temporarily before calling doSolve
-  private _computation = {held: 0, operation: '', last: 0, lastOpen: false}
+  // private _computation = {held: 0, operation: '', last: 0, lastOpen: false} old
+  private _computation:(any)[][] = [[0,''],[10,'+'],[10,'-']]
 
-  holdDisplay(op:string=''){
-    this._computation.held = Number(this.display);
-    this.display='0';
-    (op && (this._computation.operation=op))
+  // holdDisplay(op:string=''){
+  //   this._computation.held = Number(this.display);
+  //   this.display='0';
+  //   (op && (this._computation.operation=op))
+  // }
+  pushComp(num:number, op:string){
+    this._computation.push([num, op])
+  }
+
+  calcDisplay():number{
+    let value = this._computation.reduce((prev, [curr,op]) => {
+      switch (op) {
+        case '+':
+          return prev + curr
+        case '-':
+          return prev - curr
+        case '×':
+          return prev * curr
+        case '÷':
+          return prev / curr
+        default:
+          console.error('Error in calcDisplay');
+          break;
+      }
+    }, 0)
+    return value
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -56,21 +79,21 @@ export class CalculatorComponent implements OnInit {
   private _reSolve = false;
   
   doPercent(){
-    switch (Boolean(this._computation.operation)) {
-      case false:
-        this.display = '0'
-        break;
-        case true:
-          if(this._computation.operation === '+' || this._computation.operation === '-') {
-            this._computation.last = this._computation.held*(Number(this.display)/100);
-            this.display = String(this._computation.last);
-          } else if (this._computation.operation === '×' || this._computation.operation === '÷') {
-            this.display = String(Number(this.display)/100)
-          } else {
-            this.display = 'err'
-          }
-        break;
-   }
+  //   switch (Boolean(this._computation.operation)) {
+  //     case false:
+  //       this.display = '0'
+  //       break;
+  //       case true:
+  //         if(this._computation.operation === '+' || this._computation.operation === '-') {
+  //           this._computation.last = this._computation.held*(Number(this.display)/100);
+  //           this.display = String(this._computation.last);
+  //         } else if (this._computation.operation === '×' || this._computation.operation === '÷') {
+  //           this.display = String(Number(this.display)/100)
+  //         } else {
+  //           this.display = 'err'
+  //         }
+  //       break;
+  //  }
   }
 
   doClearEntry(){
@@ -79,7 +102,7 @@ export class CalculatorComponent implements OnInit {
 
   doClear(){
     this.display = '0';
-    this._computation = {held: 0, operation: '', last: 0, lastOpen: false}
+    // this._computation = {held: 0, operation: '', last: 0, lastOpen: false}
   }
 
   doBackSpace(){
@@ -99,108 +122,109 @@ export class CalculatorComponent implements OnInit {
   }
 
   doDivision(rep:string = ''){
-    if(this._computation.operation) this._reSolve = false;
-    switch (this._computation.operation) {
-      case '':
-        this.holdDisplay('÷')
-        break;
-      case '÷':
-        if(this._awaitNew || this._reSolve){
-          this._resetFlag = true;
-          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-          this._computation.held = this._computation.held/this._computation.last;
-          this.display = String(this._computation.held)
-          this._awaitNew = false;
-        }
-        break;
-      default:
-        for(let [_, op] of this.buttons){
-          this._computation.lastOpen = true;
-          (op === this._computation.operation && op.call(this))
-          this._computation.operation = '÷';
-        }
-        break;
-   }
+    this.calcDisplay()
+  //   if(this._computation.operation) this._reSolve = false;
+  //   switch (this._computation.operation) {
+  //     case '':
+  //       this.holdDisplay('÷')
+  //       break;
+  //     case '÷':
+  //       if(this._awaitNew || this._reSolve){
+  //         this._resetFlag = true;
+  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
+  //         this._computation.held = this._computation.held/this._computation.last;
+  //         this.display = String(this._computation.held)
+  //         this._awaitNew = false;
+  //       }
+  //       break;
+  //     default:
+  //       for(let [_, op] of this.buttons){
+  //         this._computation.lastOpen = true;
+  //         (op === this._computation.operation && op.call(this))
+  //         this._computation.operation = '÷';
+  //       }
+  //       break;
+  //  }
   }
 
   doMultiply(rep:string = ''){
-    if(this._computation.operation) this._reSolve = false;
-    switch (this._computation.operation) {
-      case '':
-        this.holdDisplay('×')
-        break;
-      case '×':
-        if(this._awaitNew || this._reSolve){
-          this._resetFlag = true;
-          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-          this._computation.held = this._computation.held*this._computation.last;
-          this.display = String(this._computation.held)
-          this._awaitNew = false;
-        }
-        break;
-      default:
-        for(let [_, op] of this.buttons){
-          this._computation.lastOpen = true;
-          (op === this._computation.operation && op.call(this))
-          this._computation.operation = '×';
-        }
-        break;
-   }
+  //   if(this._computation.operation) this._reSolve = false;
+  //   switch (this._computation.operation) {
+  //     case '':
+  //       this.holdDisplay('×')
+  //       break;
+  //     case '×':
+  //       if(this._awaitNew || this._reSolve){
+  //         this._resetFlag = true;
+  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
+  //         this._computation.held = this._computation.held*this._computation.last;
+  //         this.display = String(this._computation.held)
+  //         this._awaitNew = false;
+  //       }
+  //       break;
+  //     default:
+  //       for(let [_, op] of this.buttons){
+  //         this._computation.lastOpen = true;
+  //         (op === this._computation.operation && op.call(this))
+  //         this._computation.operation = '×';
+  //       }
+  //       break;
+  //  }
   }
 
   doSubtraction(rep:string = ''){
-    if(this._computation.operation) this._reSolve = false;
-    switch (this._computation.operation) {
-      case '':
-        this.holdDisplay('-')
-        break;
-      case '-':
-        if(this._awaitNew || this._reSolve){
-          this._resetFlag = true;
-          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-          this._computation.held = this._computation.held-this._computation.last;
-          this.display = String(this._computation.held)
-          this._awaitNew = false;
-        }
-        break;
-      default:
-        for(let [_, op] of this.buttons){
-          this._computation.lastOpen = true;
-          (op === this._computation.operation && op.call(this))
-          this._computation.operation = '-';
-        }
-        break;
-   }
+  //   if(this._computation.operation) this._reSolve = false;
+  //   switch (this._computation.operation) {
+  //     case '':
+  //       this.holdDisplay('-')
+  //       break;
+  //     case '-':
+  //       if(this._awaitNew || this._reSolve){
+  //         this._resetFlag = true;
+  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
+  //         this._computation.held = this._computation.held-this._computation.last;
+  //         this.display = String(this._computation.held)
+  //         this._awaitNew = false;
+  //       }
+  //       break;
+  //     default:
+  //       for(let [_, op] of this.buttons){
+  //         this._computation.lastOpen = true;
+  //         (op === this._computation.operation && op.call(this))
+  //         this._computation.operation = '-';
+  //       }
+  //       break;
+  //  }
   }
 
   doAddition(rep:string = ''){
-    if(this._computation.operation) this._reSolve = false; // Need to fix this
-    switch (this._computation.operation) {
-      case '':
-        this.holdDisplay('+')
-        break;
-      case '+':
-        if(this._awaitNew || this._reSolve){
-          this._resetFlag = true;
-          this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-          this._computation.held = this._computation.held+this._computation.last;
-          this.display = String(this._computation.held)
-          this._awaitNew = false;
-        }
-        break;
-      default:
-        for(let [_, op] of this.buttons){
-          this._computation.lastOpen = true;
-          (op === this._computation.operation && op.call(this))
-          this._computation.operation = '+';
-        }
-        break;
-   }
+  //   if(this._computation.operation) this._reSolve = false; // Need to fix this
+  //   switch (this._computation.operation) {
+  //     case '':
+  //       this.holdDisplay('+')
+  //       break;
+  //     case '+':
+  //       if(this._awaitNew || this._reSolve){
+  //         this._resetFlag = true;
+  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
+  //         this._computation.held = this._computation.held+this._computation.last;
+  //         this.display = String(this._computation.held)
+  //         this._awaitNew = false;
+  //       }
+  //       break;
+  //     default:
+  //       for(let [_, op] of this.buttons){
+  //         this._computation.lastOpen = true;
+  //         (op === this._computation.operation && op.call(this))
+  //         this._computation.operation = '+';
+  //       }
+  //       break;
+  //  }
   }
 
   doSwitchSign(){
-    this.display = String(-Number(this.display))
-    this._computation.held = Number(this.display)
+  //   this.display = String(-Number(this.display))
+  //   this._computation.held = Number(this.display)
   }
 
   doAddDecimal(){
@@ -208,23 +232,22 @@ export class CalculatorComponent implements OnInit {
   }
 
   doSolve(){
-    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
-    this._computation.last ||= Number(this.display)
-    for(let [char, op] of this.buttons){
-      (char === this._computation.operation && op.call(this));
-      if(!this._reSolve) {
-        this._reSolve=true;
-      }
+  //   console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
+  //   this._computation.last ||= Number(this.display)
+  //   for(let [char, op] of this.buttons){
+  //     (char === this._computation.operation && op.call(this));
+  //     if(!this._reSolve) {
+  //       this._reSolve=true;
+  //     }
       
-    }
-    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
+  //   }
+  //   console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   }
 
 
   numPress(event:any){
-    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
-    if(event.target.innerText !== '=') this._reSolve = false
-    console.log(this._reSolve);
+    // if(event.target.innerText !== '=') this._reSolve = false
+    // console.log(this._reSolve);
     
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
@@ -232,19 +255,18 @@ export class CalculatorComponent implements OnInit {
         this._resetFlag=false;
         this._awaitNew = true;
       }
-      if(this._computation.lastOpen) {
-        this._computation.lastOpen = false;
-        this._computation.last = Number(event.target.innerText)
-      }
-      (this._reSolve && this.doClear());
+      // if(this._computation.lastOpen) {
+      //   this._computation.lastOpen = false;
+      //   this._computation.last = Number(event.target.innerText)
+      // }
+      // (this._reSolve && this.doClear());
       this.display += event.target.innerText
     } else {
       for(let [char, op] of this.buttons){
         if(char === event.target.innerText){
-          op.call(this, event.target.innerText)
+          op.call(this)
         }
       }
     }
-    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   }
 }
