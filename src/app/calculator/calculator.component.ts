@@ -20,7 +20,7 @@ export class CalculatorComponent implements OnInit {
   public display:string = '0';
   // Used to store number and operation temporarily before calling doSolve
   // private _computation = {held: 0, operation: '', last: 0, lastOpen: false} old
-  private _computation:(any)[][] = [[0,''],[10,'+'],[10,'-']]
+  private _computation:(any)[][] = []
 
   // holdDisplay(op:string=''){
   //   this._computation.held = Number(this.display);
@@ -43,8 +43,7 @@ export class CalculatorComponent implements OnInit {
         case '÷':
           return prev / curr
         default:
-          console.error('Error in calcDisplay');
-          break;
+          return curr
       }
     }, 0)
     return value
@@ -79,16 +78,23 @@ export class CalculatorComponent implements OnInit {
   private _reSolve = false;
   
   doPercent(){
-  //   switch (Boolean(this._computation.operation)) {
+    let op = this._computation.length > 1 ? this._computation[this._computation.length-1][1]:false
+    if(op) {
+      let ofHund = Number(this.display)/100;
+      ((op === '+' || op === '-') && (this.display = String(this._computation[this._computation.length-2][1]*ofHund)));
+      ((op === '×' || op === '÷') && (this.display = String(ofHund)))
+    } else {
+      this.display = '0'
+    }
+  //   switch (op) {
   //     case false:
   //       this.display = '0'
   //       break;
-  //       case true:
-  //         if(this._computation.operation === '+' || this._computation.operation === '-') {
-  //           this._computation.last = this._computation.held*(Number(this.display)/100);
-  //           this.display = String(this._computation.last);
-  //         } else if (this._computation.operation === '×' || this._computation.operation === '÷') {
-  //           this.display = String(Number(this.display)/100)
+  //       case :
+  //         if(op === '+' || op === '-') {
+  //           // if adding op needed
+  //         } else if (op === '×' || op === '÷') {
+  //           this.display = String(Number(this.display)/100)         Deprecated 6/19
   //         } else {
   //           this.display = 'err'
   //         }
@@ -122,7 +128,7 @@ export class CalculatorComponent implements OnInit {
   }
 
   doDivision(rep:string = ''){
-    this.calcDisplay()
+    console.log(this.calcDisplay());
   //   if(this._computation.operation) this._reSolve = false;
   //   switch (this._computation.operation) {
   //     case '':
