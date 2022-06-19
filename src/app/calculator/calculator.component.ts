@@ -19,7 +19,7 @@ export class CalculatorComponent implements OnInit {
   // Used to show the current display
   public display:string = '0';
   // Used to store number and operation temporarily before calling doSolve
-  private _computation = {held: 0, operation: '', last: 0}
+  private _computation = {held: 0, operation: '', last: 0, lastOpen: false}
 
   holdDisplay(op:string=''){
     this._computation.held = Number(this.display);
@@ -79,7 +79,7 @@ export class CalculatorComponent implements OnInit {
 
   doClear(){
     this.display = '0';
-    this._computation = {held: 0, operation: '', last: 0}
+    this._computation = {held: 0, operation: '', last: 0, lastOpen: false}
   }
 
   doBackSpace(){
@@ -98,7 +98,8 @@ export class CalculatorComponent implements OnInit {
     this.display = String(Math.sqrt(Number(this.display)))
   }
 
-  doDivision(){
+  doDivision(rep:string = ''){
+    if(this._computation.operation) this._reSolve = false;
     switch (this._computation.operation) {
       case '':
         this.holdDisplay('÷')
@@ -114,6 +115,7 @@ export class CalculatorComponent implements OnInit {
         break;
       default:
         for(let [_, op] of this.buttons){
+          this._computation.lastOpen = true;
           (op === this._computation.operation && op.call(this))
           this._computation.operation = '÷';
         }
@@ -121,7 +123,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doMultiply(){
+  doMultiply(rep:string = ''){
+    if(this._computation.operation) this._reSolve = false;
     switch (this._computation.operation) {
       case '':
         this.holdDisplay('×')
@@ -137,6 +140,7 @@ export class CalculatorComponent implements OnInit {
         break;
       default:
         for(let [_, op] of this.buttons){
+          this._computation.lastOpen = true;
           (op === this._computation.operation && op.call(this))
           this._computation.operation = '×';
         }
@@ -144,7 +148,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doSubtraction(){
+  doSubtraction(rep:string = ''){
+    if(this._computation.operation) this._reSolve = false;
     switch (this._computation.operation) {
       case '':
         this.holdDisplay('-')
@@ -160,6 +165,7 @@ export class CalculatorComponent implements OnInit {
         break;
       default:
         for(let [_, op] of this.buttons){
+          this._computation.lastOpen = true;
           (op === this._computation.operation && op.call(this))
           this._computation.operation = '-';
         }
@@ -167,7 +173,8 @@ export class CalculatorComponent implements OnInit {
    }
   }
 
-  doAddition(){
+  doAddition(rep:string = ''){
+    if(this._computation.operation) this._reSolve = false; // Need to fix this
     switch (this._computation.operation) {
       case '':
         this.holdDisplay('+')
@@ -183,6 +190,7 @@ export class CalculatorComponent implements OnInit {
         break;
       default:
         for(let [_, op] of this.buttons){
+          this._computation.lastOpen = true;
           (op === this._computation.operation && op.call(this))
           this._computation.operation = '+';
         }
@@ -192,6 +200,7 @@ export class CalculatorComponent implements OnInit {
 
   doSwitchSign(){
     this.display = String(-Number(this.display))
+    this._computation.held = Number(this.display)
   }
 
   doAddDecimal(){
@@ -202,10 +211,8 @@ export class CalculatorComponent implements OnInit {
     console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
     this._computation.last ||= Number(this.display)
     for(let [char, op] of this.buttons){
-      if(this._reSolve) {
-        (char === this._computation.operation && op.call(this, true));
-      } else {
-        (char === this._computation.operation && op.call(this));
+      (char === this._computation.operation && op.call(this));
+      if(!this._reSolve) {
         this._reSolve=true;
       }
       
@@ -215,6 +222,7 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
+    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
     if(event.target.innerText !== '=') this._reSolve = false
     console.log(this._reSolve);
     
@@ -224,13 +232,19 @@ export class CalculatorComponent implements OnInit {
         this._resetFlag=false;
         this._awaitNew = true;
       }
+      if(this._computation.lastOpen) {
+        this._computation.lastOpen = false;
+        this._computation.last = Number(event.target.innerText)
+      }
+      (this._reSolve && this.doClear());
       this.display += event.target.innerText
     } else {
       for(let [char, op] of this.buttons){
         if(char === event.target.innerText){
-          op.call(this)
+          op.call(this, event.target.innerText)
         }
       }
     }
+    console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   }
 }
