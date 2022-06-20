@@ -16,22 +16,15 @@ export class CalculatorComponent implements OnInit {
     this.context = this._contextService;
   }
 
-  // private _computation = {held: 0, operation: '', last: 0, lastOpen: false}       Deprecated 6/19 Will remove 6/20
-
   public display:string = '0';        // Displayed to the calculator
   private _computation:any[][] = [[0,'']] // Used to compute final display
   private _testLog:any[][] = []
   private _resetFlag:boolean = false;         // Determines if display should be reset to new number on input
   private _awaitNew:boolean = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
-  private _noLogClear:boolean =false;          // Determines if clearing without logging to history
+  private _resolved:boolean = false;          // Determines if the solve button was pushed subsequently.
+  private _clearToLog:boolean = false;        // Determines if clearing will log to history
+  private _noLogClear:boolean =false;         // Determines if clearing without logging to history
 
-
-  /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  // holdDisplay(op:string=''){
-  //   this._computation.held = Number(this.display);
-  //   this.display='0';
-  //   (op && (this._computation.operation=op))
-  // }
   pushComp(num:number, op:string, notLast:boolean=false){
     if(notLast){
       this._computation.splice(this._computation.length-1,0,[num,op])
@@ -62,15 +55,40 @@ export class CalculatorComponent implements OnInit {
     return [[this.reduceCalc(tmp),tmp.slice(-1)[0][1]],this._computation.slice(-1)[0]];
   }
 
+  scrubInst(inst:any[][]):any[][]{
+    let firstIsOp:boolean = false;
+    let hasOps:boolean[] = [false,false];
+    let hasNoStart:(boolean | number)[] = [false,0];
+    for(let i = 0; i<inst.length; i++) {
+      if(i===0 && inst[i][1]!=='') firstIsOp = true;
+      if(inst[i][1]==='') {
+        hasOps[0] = true;
+        hasNoStart[0] = !hasNoStart
+        if(hasNoStart[0]) hasNoStart[1]=i;
+      } else {
+        if(hasOps[0]) hasOps[1] = true;
+      }
+    }
+    console.log(firstIsOp, hasOps, hasNoStart);
+    
+    return inst
+    // let tmp:any[][] = [...inst]
+    // if(firstIsOp) tmp = tmp.slice(1);
+    // if(!hasOps[0] || !hasOps[1]) tmp = tmp.slice(1);
+    // if(hasNoStart)
+  }
+
+  sendToLog(){
+    this._testLog.push(this.scrubInst(this._computation))
+    this._computation = this.reduceComp();
+  }
+
   calcDisplay(logHist:boolean=false):number{
-    this.reduceComp()
-    this.display = String(this.reduceCalc(this._computation))
+    if(logHist) this.sendToLog();
+    this.display = String(this.reduceCalc(this._computation));
     this._resetFlag = true;
     this._awaitNew = true;
-    // if(logHist) {
-    //   this._testLog.push(logHist)
-    // }
-    return Number(this.display)
+    return Number(this.display);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -107,30 +125,14 @@ export class CalculatorComponent implements OnInit {
     } else {
       this.display = '0'
     }
-
-
-
-
-  //   switch (op) {
-  //     case false:
-  //       this.display = '0'
-  //       break;
-  //       case :
-  //         if(op === '+' || op === '-') {
-  //           // if adding op needed
-  //         } else if (op === '×' || op === '÷') {
-  //           this.display = String(Number(this.display)/100)          Deprecated 6/19
-  //         } else {                                                   Will remove 6/20
-  //           this.display = 'err'
-  //         }
-  //       break;
-  //  }
   }
 
   doClearEntry(){
     if(this._noLogClear){
+      console.log('tested');
+      
       this.display = '0';
-      this._computation = []
+      this._computation = [[0,'']]
     } else {
       this.display = '0';
       this._noLogClear = true;
@@ -139,7 +141,7 @@ export class CalculatorComponent implements OnInit {
 
   doClear(){
     this.display = '0';
-    this._computation = []
+    this._computation = [[0,'']]
   }
 
   doBackSpace(){
@@ -161,123 +163,21 @@ export class CalculatorComponent implements OnInit {
   doDivision(){
     this.pushComp(Number(this.display), '÷')
     this.calcDisplay();
-
-
-  /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  //   if(this._computation.operation) this._reSolve = false;
-  //   switch (this._computation.operation) {
-  //     case '':
-  //       this.holdDisplay('÷')
-  //       break;
-  //     case '÷':
-  //       if(this._awaitNew || this._reSolve){
-  //         this._resetFlag = true;
-  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-  //         this._computation.held = this._computation.held/this._computation.last;
-  //         this.display = String(this._computation.held)
-  //         this._awaitNew = false;
-  //       }
-  //       break;
-  //     default:
-  //       for(let [_, op] of this.buttons){
-  //         this._computation.lastOpen = true;
-  //         (op === this._computation.operation && op.call(this))
-  //         this._computation.operation = '÷';
-  //       }
-  //       break;
-  //  }
   }
 
   doMultiply(){
     this.pushComp(Number(this.display), '×')
     this.calcDisplay();
-
-
-    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  //   if(this._computation.operation) this._reSolve = false;
-  //   switch (this._computation.operation) {
-  //     case '':
-  //       this.holdDisplay('×')
-  //       break;
-  //     case '×':
-  //       if(this._awaitNew || this._reSolve){
-  //         this._resetFlag = true;
-  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-  //         this._computation.held = this._computation.held*this._computation.last;
-  //         this.display = String(this._computation.held)
-  //         this._awaitNew = false;
-  //       }
-  //       break;
-  //     default:
-  //       for(let [_, op] of this.buttons){
-  //         this._computation.lastOpen = true;
-  //         (op === this._computation.operation && op.call(this))
-  //         this._computation.operation = '×';
-  //       }
-  //       break;
-  //  }
   }
 
   doSubtraction(){
     this.pushComp(Number(this.display), '-')
     this.calcDisplay();
-
-
-
-    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  //   if(this._computation.operation) this._reSolve = false;
-  //   switch (this._computation.operation) {
-  //     case '':
-  //       this.holdDisplay('-')
-  //       break;
-  //     case '-':
-  //       if(this._awaitNew || this._reSolve){
-  //         this._resetFlag = true;
-  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-  //         this._computation.held = this._computation.held-this._computation.last;
-  //         this.display = String(this._computation.held)
-  //         this._awaitNew = false;
-  //       }
-  //       break;
-  //     default:
-  //       for(let [_, op] of this.buttons){
-  //         this._computation.lastOpen = true;
-  //         (op === this._computation.operation && op.call(this))
-  //         this._computation.operation = '-';
-  //       }
-  //       break;
-  //  }
   }
  
   doAddition(){
     this.pushComp(Number(this.display), '+')
     this.calcDisplay();
-
-
-
-    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  //   if(this._computation.operation) this._reSolve = false; // Need to fix this
-  //   switch (this._computation.operation) {
-  //     case '':
-  //       this.holdDisplay('+')
-  //       break;
-  //     case '+':
-  //       if(this._awaitNew || this._reSolve){
-  //         this._resetFlag = true;
-  //         this._computation.last = this._reSolve ? this._computation.last : Number(this.display);
-  //         this._computation.held = this._computation.held+this._computation.last;
-  //         this.display = String(this._computation.held)
-  //         this._awaitNew = false;
-  //       }
-  //       break;
-  //     default:
-  //       for(let [_, op] of this.buttons){
-  //         this._computation.lastOpen = true;
-  //         (op === this._computation.operation && op.call(this))
-  //         this._computation.operation = '+';
-  //       }
-  //       break;
-  //  }
   }
 
   doSwitchSign(){
@@ -290,42 +190,33 @@ export class CalculatorComponent implements OnInit {
 
   doSolve(){
     if(this._awaitNew){
+      this._resolved = true;
       this.pushComp(this._computation[this._computation.length-1][0], this._computation[this._computation.length-2][1], true);
       this.calcDisplay();
     } else {
       this.pushComp(Number(this.display),'')
-      this.calcDisplay();
+      this.calcDisplay(true);
     }
+    console.log(this._computation, this._testLog.flat());
     
-
-
-    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
-  //   console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
-  //   this._computation.last ||= Number(this.display)
-  //   for(let [char, op] of this.buttons){
-  //     (char === this._computation.operation && op.call(this));
-  //     if(!this._reSolve) {
-  //       this._reSolve=true;
-  //     }
-      
-  //   }
-  //   console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   }
 
 
   numPress(event:any){
-    if(event.target.innerText !== 'CE') this._noLogClear = false;
+    if(event.target.innerText !== 'CE') {
+      this._noLogClear = false
+    } else {
+      if(this._noLogClear){
+        this.doClearEntry()
+      }
+    }
+    if(this._resolved && event.target.innerText !== '=') this.sendToLog()
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
         this.display= '';
         this._resetFlag=false;
         this._awaitNew=false;
       }
-      // if(this._computation.lastOpen) {
-      //   this._computation.lastOpen = false;
-      //   this._computation.last = Number(event.target.innerText)      Deprecated 6/19
-      // }                                                              Will remove 6/20
-      // (this._reSolve && this.doClear());
       this.display += event.target.innerText
     } else {
       for(let [char, op] of this.buttons){

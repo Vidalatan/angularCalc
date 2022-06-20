@@ -7,15 +7,9 @@ export class ContextService {
 
   constructor() { }
 
-  prevNum = 0;
+  log:any[][] = []
 
-  setPrevNum(newNum:number){
-    this.prevNum = newNum;
-  }
-
-  log:String[] = []
-
-  addToContextLog(newLog:String){
+  addToContextLog(newLog:(number|string)[]){
     this.log.push(newLog);
   }
 
