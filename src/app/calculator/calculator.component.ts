@@ -7,7 +7,7 @@ import { ContextService } from '../context.service';
   styleUrls: ['./calculator.component.scss']
 })
 export class CalculatorComponent implements OnInit {
-  public context: ContextService;
+  public context: ContextService; // Declaration of context variable for context service
   
   constructor(private _contextService: ContextService) {
   }
@@ -16,24 +16,32 @@ export class CalculatorComponent implements OnInit {
     this.context = this._contextService
   }
 
-  // Used to show the current display
-  public display:string = '0';
-  // Used to store number and operation temporarily before calling doSolve
-  // private _computation = {held: 0, operation: '', last: 0, lastOpen: false} old
-  private _computation:(any)[][] = []
+  // private _computation = {held: 0, operation: '', last: 0, lastOpen: false}       Deprecated 6/19 Will remove 6/20
 
+  public display:string = '0';        // Displayed to the calculator
+  private _computation:(any)[][] = [] // Used to compute final display
+  private _resetFlag = false;         // Determines if display should be reset to new number on input
+  private _awaitNew = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
+  private _noLogClear=false;          // Determines if clearing without logging to history
+
+
+  /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   // holdDisplay(op:string=''){
   //   this._computation.held = Number(this.display);
   //   this.display='0';
   //   (op && (this._computation.operation=op))
   // }
-  pushComp(num:number, op:string){
-    this._computation.push([num, op])
+  pushComp(num:number, op:string, notLast:boolean=false){
+    if(notLast){
+      this._computation.splice(this._computation.length-1,0,[num,op])
+    } else {
+      this._computation.push([num, op])
+    }
   }
 
-  calcDisplay():number{
-    let value = this._computation.reduce((prev, [curr,op]) => {
-      switch (op) {
+  calcDisplay(logHist:boolean=false):number{
+    let value = this._computation.reduce((prev, [curr],cIn) => {
+      switch (this._computation[cIn-1] ? this._computation[cIn-1][1]:0) {
         case '+':
           return prev + curr
         case '-':
@@ -46,6 +54,10 @@ export class CalculatorComponent implements OnInit {
           return curr
       }
     }, 0)
+    this.display = String(value)
+    this._resetFlag = true;
+    this._awaitNew = true;
+    // if(logHist) {}  adding for future use of history log
     return value
   }
 
@@ -56,6 +68,7 @@ export class CalculatorComponent implements OnInit {
     };
     (event.key === '*' && document.getElementById(`keyPad-×`)?.click());
     (event.key === '/' && document.getElementById(`keyPad-÷`)?.click());
+    (event.key === 'Enter' && document.getElementById(`keyPad-=`)?.click());
     (event.key === 'Backspace' && document.getElementById(`keyPad-«`)?.click());
     (event.key === 'Delete' && document.getElementById(`keyPad-CE`)?.click());
   }
@@ -72,10 +85,6 @@ export class CalculatorComponent implements OnInit {
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
-
-  private _resetFlag = false;
-  private _awaitNew = false;
-  private _reSolve = false;
   
   doPercent(){
     let op = this._computation.length > 1 ? this._computation[this._computation.length-1][1]:false
@@ -86,6 +95,10 @@ export class CalculatorComponent implements OnInit {
     } else {
       this.display = '0'
     }
+
+
+
+
   //   switch (op) {
   //     case false:
   //       this.display = '0'
@@ -94,8 +107,8 @@ export class CalculatorComponent implements OnInit {
   //         if(op === '+' || op === '-') {
   //           // if adding op needed
   //         } else if (op === '×' || op === '÷') {
-  //           this.display = String(Number(this.display)/100)         Deprecated 6/19
-  //         } else {
+  //           this.display = String(Number(this.display)/100)          Deprecated 6/19
+  //         } else {                                                   Will remove 6/20
   //           this.display = 'err'
   //         }
   //       break;
@@ -103,12 +116,18 @@ export class CalculatorComponent implements OnInit {
   }
 
   doClearEntry(){
-    this.display = '0';
+    if(this._noLogClear){
+      this.display = '0';
+      this._computation = []
+    } else {
+      this.display = '0';
+      this._noLogClear = true;
+    }
   }
 
   doClear(){
     this.display = '0';
-    // this._computation = {held: 0, operation: '', last: 0, lastOpen: false}
+    this._computation = []
   }
 
   doBackSpace(){
@@ -127,8 +146,12 @@ export class CalculatorComponent implements OnInit {
     this.display = String(Math.sqrt(Number(this.display)))
   }
 
-  doDivision(rep:string = ''){
-    console.log(this.calcDisplay());
+  doDivision(){
+    this.pushComp(Number(this.display), '÷')
+    this.calcDisplay();
+
+
+  /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   //   if(this._computation.operation) this._reSolve = false;
   //   switch (this._computation.operation) {
   //     case '':
@@ -153,7 +176,12 @@ export class CalculatorComponent implements OnInit {
   //  }
   }
 
-  doMultiply(rep:string = ''){
+  doMultiply(){
+    this.pushComp(Number(this.display), '×')
+    this.calcDisplay();
+
+
+    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   //   if(this._computation.operation) this._reSolve = false;
   //   switch (this._computation.operation) {
   //     case '':
@@ -178,7 +206,13 @@ export class CalculatorComponent implements OnInit {
   //  }
   }
 
-  doSubtraction(rep:string = ''){
+  doSubtraction(){
+    this.pushComp(Number(this.display), '-')
+    this.calcDisplay();
+
+
+
+    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   //   if(this._computation.operation) this._reSolve = false;
   //   switch (this._computation.operation) {
   //     case '':
@@ -202,8 +236,14 @@ export class CalculatorComponent implements OnInit {
   //       break;
   //  }
   }
+ 
+  doAddition(){
+    this.pushComp(Number(this.display), '+')
+    this.calcDisplay();
 
-  doAddition(rep:string = ''){
+
+
+    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   //   if(this._computation.operation) this._reSolve = false; // Need to fix this
   //   switch (this._computation.operation) {
   //     case '':
@@ -229,15 +269,25 @@ export class CalculatorComponent implements OnInit {
   }
 
   doSwitchSign(){
-  //   this.display = String(-Number(this.display))
-  //   this._computation.held = Number(this.display)
+    this.display = String(-Number(this.display));
   }
 
   doAddDecimal(){
-    this.display += '.'
+    if(!this.display.includes('.')) this.display += '.';
   }
 
   doSolve(){
+    if(this._awaitNew){
+      this.pushComp(this._computation[this._computation.length-1][0], this._computation[this._computation.length-2][1], true);
+      this.calcDisplay();
+    } else {
+      this.pushComp(Number(this.display),'')
+      this.calcDisplay();
+    }
+    
+
+
+    /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
   //   console.log(`op=${this._computation.operation}, awaitNew=${this._awaitNew}, reSolve=${this._reSolve}`,this._computation);
   //   this._computation.last ||= Number(this.display)
   //   for(let [char, op] of this.buttons){
@@ -252,19 +302,17 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
-    // if(event.target.innerText !== '=') this._reSolve = false
-    // console.log(this._reSolve);
-    
+    if(event.target.innerText !== 'CE') this._noLogClear = false;
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
         this.display= '';
         this._resetFlag=false;
-        this._awaitNew = true;
+        this._awaitNew=false;
       }
       // if(this._computation.lastOpen) {
       //   this._computation.lastOpen = false;
-      //   this._computation.last = Number(event.target.innerText)
-      // }
+      //   this._computation.last = Number(event.target.innerText)      Deprecated 6/19
+      // }                                                              Will remove 6/20
       // (this._reSolve && this.doClear());
       this.display += event.target.innerText
     } else {
