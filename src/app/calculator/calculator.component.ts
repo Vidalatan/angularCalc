@@ -13,16 +13,17 @@ export class CalculatorComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    this.context = this._contextService
+    this.context = this._contextService;
   }
 
   // private _computation = {held: 0, operation: '', last: 0, lastOpen: false}       Deprecated 6/19 Will remove 6/20
 
   public display:string = '0';        // Displayed to the calculator
-  private _computation:(any)[][] = [] // Used to compute final display
-  private _resetFlag = false;         // Determines if display should be reset to new number on input
-  private _awaitNew = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
-  private _noLogClear=false;          // Determines if clearing without logging to history
+  private _computation:any[][] = [[0,'']] // Used to compute final display
+  private _testLog:any[][] = []
+  private _resetFlag:boolean = false;         // Determines if display should be reset to new number on input
+  private _awaitNew:boolean = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
+  private _noLogClear:boolean =false;          // Determines if clearing without logging to history
 
 
   /* ====== Deprecated 6/19 | Will remove 6/20 ====== */  
@@ -39,9 +40,9 @@ export class CalculatorComponent implements OnInit {
     }
   }
 
-  calcDisplay(logHist:boolean=false):number{
-    let value = this._computation.reduce((prev, [curr],cIn) => {
-      switch (this._computation[cIn-1] ? this._computation[cIn-1][1]:0) {
+  reduceCalc(compArr:any[][]):number{
+    return compArr.reduce((prev, [curr], cIn) => {
+      switch (compArr[cIn-1] ? compArr[cIn-1][1]:0) {
         case '+':
           return prev + curr
         case '-':
@@ -54,11 +55,22 @@ export class CalculatorComponent implements OnInit {
           return curr
       }
     }, 0)
-    this.display = String(value)
+  }
+
+  reduceComp(){
+    let tmp = [...this._computation].slice(0,-1);
+    return [[this.reduceCalc(tmp),tmp.slice(-1)[0][1]],this._computation.slice(-1)[0]];
+  }
+
+  calcDisplay(logHist:boolean=false):number{
+    this.reduceComp()
+    this.display = String(this.reduceCalc(this._computation))
     this._resetFlag = true;
     this._awaitNew = true;
-    // if(logHist) {}  adding for future use of history log
-    return value
+    // if(logHist) {
+    //   this._testLog.push(logHist)
+    // }
+    return Number(this.display)
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -322,5 +334,6 @@ export class CalculatorComponent implements OnInit {
         }
       }
     }
+    console.log(this._computation)
   }
 }
