@@ -21,7 +21,6 @@ export class CalculatorComponent implements OnInit {
   private _testLog:any[][] = []
   private _resetFlag:boolean = false;         // Determines if display should be reset to new number on input
   private _awaitNew:boolean = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
-  private _resolved:boolean = false;          // Determines if the solve button was pushed subsequently.
   private _clearToLog:boolean = false;        // Determines if clearing will log to history
   private _noLogClear:boolean =false;         // Determines if clearing without logging to history
 
@@ -115,6 +114,8 @@ export class CalculatorComponent implements OnInit {
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
+
+  private _clearGroup:any[] = this.buttons.flatMap( ([char,_]) => ('CE'.includes(char) && char)).filter(_ => _);
   
   doPercent(){
     let op = this._computation.length > 1 ? this._computation[this._computation.length-1][1]:false
@@ -190,19 +191,21 @@ export class CalculatorComponent implements OnInit {
 
   doSolve(){
     if(this._awaitNew){
-      this._resolved = true;
       this.pushComp(this._computation[this._computation.length-1][0], this._computation[this._computation.length-2][1], true);
-      this.calcDisplay();
+      this.reduceComp()
+      this.calcDisplay(true);
     } else {
       this.pushComp(Number(this.display),'')
       this.calcDisplay(true);
     }
-    console.log(this._computation, this._testLog.flat());
+    console.log(this._computation, this._testLog);
     
   }
 
 
   numPress(event:any){
+    console.log(this._clearGroup);
+    
     if(event.target.innerText !== 'CE') {
       this._noLogClear = false
     } else {
@@ -210,7 +213,6 @@ export class CalculatorComponent implements OnInit {
         this.doClearEntry()
       }
     }
-    if(this._resolved && event.target.innerText !== '=') this.sendToLog()
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
         this.display= '';
@@ -218,7 +220,7 @@ export class CalculatorComponent implements OnInit {
         this._awaitNew=false;
       }
       this.display += event.target.innerText
-    } else {
+    } else if (!this._awaitNew || this._clearGroup.includes(event.target.innerText)) {
       for(let [char, op] of this.buttons){
         if(char === event.target.innerText){
           op.call(this)
