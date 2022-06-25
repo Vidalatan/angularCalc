@@ -21,8 +21,10 @@ export class CalculatorComponent implements OnInit {
   private _testLog:any[][] = []
   private _resetFlag:boolean = false;         // Determines if display should be reset to new number on input
   private _awaitNew:boolean = false;          // Determines if awaiting a new operation button press or recalc prev on equals button
+  private _resolve:boolean = false;
   private _clearToLog:boolean = false;        // Determines if clearing will log to history
   private _noLogClear:boolean =false;         // Determines if clearing without logging to history
+  private _opGroup:string[] = ['+','-','×','÷'];
 
   pushComp(num:number, op:string, notLast:boolean=false){
     if(notLast){
@@ -114,8 +116,6 @@ export class CalculatorComponent implements OnInit {
     ['1'],  ['2'],  ['3'], ['+', this.doAddition],
     ['±', this.doSwitchSign],  ['0'],  ['.',this.doAddDecimal], ['=', this.doSolve]
   ]
-
-  private _clearGroup:any[] = this.buttons.flatMap( ([char,_]) => ('CE'.includes(char) && char)).filter(_ => _);
   
   doPercent(){
     let op = this._computation.length > 1 ? this._computation[this._computation.length-1][1]:false
@@ -204,7 +204,12 @@ export class CalculatorComponent implements OnInit {
 
 
   numPress(event:any){
-    console.log(this._clearGroup);
+    if(event.target.innerText === '=' && !this._resolve){
+      this._resolve = true
+    } else if (event.target.innerText === '=' && this._resolve){
+      this.doSolve.call(this);
+      return
+    }
     
     if(event.target.innerText !== 'CE') {
       this._noLogClear = false
@@ -213,14 +218,15 @@ export class CalculatorComponent implements OnInit {
         this.doClearEntry()
       }
     }
+
+    if(!this._opGroup.includes(event.target.innerText)) this._awaitNew=false;
     if(event.target.innerText.match(/^\d$/)) {
       if(this.display==='0' || this._resetFlag) {
         this.display= '';
         this._resetFlag=false;
-        this._awaitNew=false;
       }
       this.display += event.target.innerText
-    } else if (!this._awaitNew || this._clearGroup.includes(event.target.innerText)) {
+    } else {
       for(let [char, op] of this.buttons){
         if(char === event.target.innerText){
           op.call(this)
